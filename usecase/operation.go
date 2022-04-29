@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"context"
+	"stocks/currency"
 	"stocks/operation"
 	"stocks/stock"
+	"sync"
 	"time"
 )
 
@@ -18,7 +20,19 @@ type (
 	BuyOperationUseCase struct {
 		Repository operation.Repository
 	}
+
+	ReportUseCase struct {
+		Provider   stock.Provider
+		Repository operation.ReportRepository
+	}
 )
+
+func NewReportUseCase(provider stock.Provider, repository operation.ReportRepository) *ReportUseCase {
+	return &ReportUseCase{
+		Provider:   provider,
+		Repository: repository,
+	}
+}
 
 func NewBuyOperationUseCase(repository operation.Repository) *BuyOperationUseCase {
 	return &BuyOperationUseCase{
@@ -26,7 +40,7 @@ func NewBuyOperationUseCase(repository operation.Repository) *BuyOperationUseCas
 	}
 }
 
-func (c BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (operation.Operation, error) {
+func (uc BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (operation.Operation, error) {
 	op := operation.Operation{
 		Type:      operation.Buy,
 		Stock:     request.Stock,
@@ -35,9 +49,50 @@ func (c BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (o
 		UnitValue: request.UnitValue,
 	}
 
-	if err := c.Repository.Create(ctx, op); err != nil {
+	if err := uc.Repository.Create(ctx, op); err != nil {
 		return operation.Operation{}, err
 	}
 
 	return op, nil
+}
+
+func (uc ReportUseCase) Execute(ctx context.Context) (operation.Report, error) {
+	summary, err := uc.Repository.Summary(ctx)
+	if err != nil {
+		return operation.Report{}, err
+	}
+
+	done := make(chan bool)
+	fail := make(chan error)
+
+	wg := sync.WaitGroup{}
+	for i := range summary {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			info, err := uc.Provider.LastInfo(ctx, summary[i].Stock)
+			if err != nil {
+				fail <- err
+				return
+			}
+
+			summary[i].LastPrice = currency.NewFromFloat(info.LastPrice)
+		}(i)
+	}
+
+	go func() {
+		wg.Wait()
+		done <- true
+	}()
+
+	select {
+	case <-done:
+		return operation.Report{
+			Summary: summary,
+		}, nil
+	case err := <-fail:
+		return operation.Report{}, err
+	case <-ctx.Done():
+		return operation.Report{}, ctx.Err()
+	}
 }

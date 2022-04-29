@@ -16,6 +16,7 @@ import (
 var (
 	lastPriceUseCase          *usecase.GetLastPrice
 	createBuyOperationUseCase *usecase.BuyOperationUseCase
+	reportUseCase             *usecase.ReportUseCase
 )
 
 func init() {
@@ -24,11 +25,12 @@ func init() {
 		log.Fatalln("failed to connect database")
 	}
 
-	r := repositoty.NewGormDatabase(db)
-	s := okanebox.NewProvider(http.DefaultClient)
+	database := repositoty.NewGormDatabase(db)
+	provider := okanebox.NewProvider(http.DefaultClient)
 
-	lastPriceUseCase = usecase.NewGetLastPrice(s)
-	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(r)
+	lastPriceUseCase = usecase.NewGetLastPrice(provider)
+	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database)
+	reportUseCase = usecase.NewReportUseCase(provider, database)
 }
 
 func main() {
@@ -59,5 +61,16 @@ func main() {
 		}
 
 		fmt.Printf("%s: %.2f\n", request, lastPrice)
+	case "report":
+		report, err := reportUseCase.Execute(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		fmt.Println("Stock\tQtd.\tAvg. Price\tLast Price\tGain/Loss")
+
+		for _, e := range report.Summary {
+			fmt.Printf("%s\t%d\t%s\t%s\t%s\n", e.Stock, e.Quantity, e.AveragePrice, e.LastPrice, e.GainLoss())
+		}
 	}
 }
