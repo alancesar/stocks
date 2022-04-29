@@ -27,15 +27,15 @@ type (
 	}
 )
 
-func NewReportUseCase(provider stock.Provider, repository operation.ReportRepository) *ReportUseCase {
-	return &ReportUseCase{
-		Provider:   provider,
+func NewBuyOperationUseCase(repository operation.Repository) *BuyOperationUseCase {
+	return &BuyOperationUseCase{
 		Repository: repository,
 	}
 }
 
-func NewBuyOperationUseCase(repository operation.Repository) *BuyOperationUseCase {
-	return &BuyOperationUseCase{
+func NewReportUseCase(provider stock.Provider, repository operation.ReportRepository) *ReportUseCase {
+	return &ReportUseCase{
+		Provider:   provider,
 		Repository: repository,
 	}
 }
