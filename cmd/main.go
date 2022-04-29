@@ -10,6 +10,7 @@ import (
 	"os"
 	"stocks/internal/okanebox"
 	"stocks/internal/repositoty"
+	"stocks/printer"
 	"stocks/usecase"
 )
 
@@ -67,10 +68,8 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		fmt.Println("Stock\tQtd.\tAvg. Price\tLast Price\tGain/Loss")
-
-		for _, e := range report.Summary {
-			fmt.Printf("%s\t%d\t%s\t%s\t%s\n", e.Stock, e.Quantity, e.AveragePrice, e.LastPrice, e.GainLoss())
+		if err := printer.Print(os.Stdout, report); err != nil {
+			log.Fatalln(err)
 		}
 	}
 }
