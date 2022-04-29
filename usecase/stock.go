@@ -17,8 +17,8 @@ func NewGetLastPrice(stockService stock.Provider) *GetLastPrice {
 	}
 }
 
-func (p GetLastPrice) Execute(ctx context.Context, s stock.Stock) (float64, error) {
-	info, err := p.Integration.LastInfo(ctx, s)
+func (uc GetLastPrice) Execute(ctx context.Context, s stock.Stock) (float64, error) {
+	info, err := uc.Integration.LastInfo(ctx, s)
 	if err != nil {
 		return 0, err
 	}
