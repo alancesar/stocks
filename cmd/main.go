@@ -68,7 +68,7 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		if err := printer.Print(os.Stdout, report); err != nil {
+		if err := report.Print(os.Stdout, separator.Tab); err != nil {
 			log.Fatalln(err)
 		}
 	}
