@@ -21,6 +21,10 @@ type (
 		Repository operation.Repository
 	}
 
+	ListUseCase struct {
+		Repository operation.Repository
+	}
+
 	ReportUseCase struct {
 		Provider   stock.Provider
 		Repository operation.ReportRepository
@@ -29,6 +33,12 @@ type (
 
 func NewBuyOperationUseCase(repository operation.Repository) *BuyOperationUseCase {
 	return &BuyOperationUseCase{
+		Repository: repository,
+	}
+}
+
+func NewListUseCase(repository operation.Repository) *ListUseCase {
+	return &ListUseCase{
 		Repository: repository,
 	}
 }
@@ -54,6 +64,10 @@ func (uc BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (
 	}
 
 	return op, nil
+}
+
+func (uc ListUseCase) Execute(ctx context.Context) (operation.List, error) {
+	return uc.Repository.List(ctx)
 }
 
 func (uc ReportUseCase) Execute(ctx context.Context) (operation.Report, error) {

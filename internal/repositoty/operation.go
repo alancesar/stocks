@@ -64,6 +64,22 @@ func (d GormDatabase) Create(ctx context.Context, op operation.Operation) error 
 	})
 	return query.Error
 }
+
+func (d GormDatabase) List(ctx context.Context) (operation.List, error) {
+	var entities []entity
+	query := d.DB.WithContext(ctx).Raw("SELECT * FROM operations ORDER BY date, id").Scan(&entities)
+	if query.Error != nil {
+		return nil, query.Error
+	}
+
+	operations := make(operation.List, len(entities))
+	for i := range entities {
+		operations[i] = entities[i].Operation
+	}
+
+	return operations, nil
+}
+
 func (d GormDatabase) Summary(ctx context.Context) (operation.Summary, error) {
 	var e entries
 
