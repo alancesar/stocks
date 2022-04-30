@@ -73,6 +73,29 @@ func main() {
 		if err := operations.Print(os.Stdout, separator.Tab); err != nil {
 			log.Fatalln(err)
 		}
+	case "export":
+		output := "stocks.csv"
+		if len(os.Args) > 2 {
+			output = os.Args[2]
+		}
+
+		file, err := os.Create(output)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		defer func() {
+			_ = file.Close()
+		}()
+
+		report, err := listUseCase.Execute(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if err := report.Print(file, separator.Comma); err != nil {
+			log.Fatalln(err)
+		}
 	case "report":
 		report, err := reportUseCase.Execute(ctx)
 		if err != nil {
