@@ -5,10 +5,12 @@ import (
 	"io"
 )
 
-func Import[T any](reader io.Reader, fn func([]string) (T, error)) ([]T, error) {
+func Import[T any](reader io.Reader, hasTitle bool, fn func([]string) (T, error)) ([]T, error) {
 	r := csv.NewReader(reader)
 
 	var output []T
+	var skipped bool
+
 	for {
 		record, err := r.Read()
 
@@ -16,6 +18,11 @@ func Import[T any](reader io.Reader, fn func([]string) (T, error)) ([]T, error) 
 			break
 		} else if err != nil {
 			return nil, err
+		}
+
+		if hasTitle && !skipped {
+			skipped = true
+			continue
 		}
 
 		if item, err := fn(record); err != nil {
