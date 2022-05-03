@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"stocks/stock"
-	"time"
 )
 
 const (
@@ -55,17 +54,11 @@ func (p Provider) LastInfo(ctx context.Context, symbol stock.Stock) (stock.Info,
 		return stock.Info{}, err
 	}
 
-	parsedDate, err := time.Parse("2006-01-02T15:04:05", data.ClosingDate)
-	if err != nil {
-		return stock.Info{}, err
-	}
-
 	return stock.Info{
-		ClosingDate:  parsedDate,
 		OpeningPrice: data.OpeningPrice,
 		MaxPrice:     data.MaxPrice,
 		MinPrice:     data.MinPrice,
-		MediumPrice:  data.MediumPrice,
 		LastPrice:    data.LastPrice,
+		Change:       data.LastPrice - data.OpeningPrice,
 	}, nil
 }
