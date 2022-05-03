@@ -8,6 +8,7 @@ import (
 	"stocks/currency"
 	"stocks/operation"
 	"stocks/stock"
+	"time"
 )
 
 type (
@@ -15,17 +16,24 @@ type (
 		DB *gorm.DB
 	}
 
-	operationEntity struct {
+	Operation struct {
 		gorm.Model
-		operation.Operation
+		Symbol    string
+		Type      int
+		Quantity  int
+		UnitValue float64
+		Date      time.Time
 	}
 
-	detailsEntity struct {
+	Detail struct {
 		gorm.Model
-		stock.Details
+		Symbol  string
+		Type    string
+		Sector  string
+		Segment string
 	}
 
-	assetEntity struct {
+	Asset struct {
 		Symbol       stock.Symbol
 		Quantity     int
 		AveragePrice float64
@@ -34,18 +42,10 @@ type (
 		Settled      float64
 	}
 
-	assets []assetEntity
+	Assets []Asset
 )
 
-func (e operationEntity) TableName() string {
-	return "operations"
-}
-
-func (e detailsEntity) TableName() string {
-	return "details"
-}
-
-func (s assets) ToDomain() asset.Assets {
+func (s Assets) ToDomain() asset.Assets {
 	var a asset.Assets
 
 	for _, e := range s {
@@ -63,7 +63,7 @@ func (s assets) ToDomain() asset.Assets {
 }
 
 func NewGormDatabase(db *gorm.DB) *GormDatabase {
-	_ = db.AutoMigrate(&operationEntity{}, &detailsEntity{})
+	_ = db.AutoMigrate(&Operation{}, &Detail{})
 
 	return &GormDatabase{
 		DB: db,
@@ -71,28 +71,38 @@ func NewGormDatabase(db *gorm.DB) *GormDatabase {
 }
 
 func (d GormDatabase) Create(ctx context.Context, op operation.Operation) error {
-	return d.DB.WithContext(ctx).Create(&operationEntity{
-		Operation: op,
+	return d.DB.WithContext(ctx).Create(&Operation{
+		Symbol:    string(op.Symbol),
+		Type:      int(op.Type),
+		Quantity:  op.Quantity,
+		UnitValue: op.UnitValue,
+		Date:      op.Date,
 	}).Error
 }
 
 func (d GormDatabase) List(ctx context.Context) (operation.List, error) {
-	var entities []operationEntity
+	var entities []Operation
 	query := d.DB.WithContext(ctx).Raw("SELECT * FROM operations ORDER BY date, id").Scan(&entities)
 	if query.Error != nil {
 		return nil, query.Error
 	}
 
 	operations := make(operation.List, len(entities))
-	for i := range entities {
-		operations[i] = entities[i].Operation
+	for i, e := range entities {
+		operations[i] = operation.Operation{
+			Symbol:    stock.Symbol(e.Symbol),
+			Type:      operation.Type(e.Type),
+			Quantity:  e.Quantity,
+			UnitValue: e.UnitValue,
+			Date:      e.Date,
+		}
 	}
 
 	return operations, nil
 }
 
 func (d GormDatabase) Assets(ctx context.Context) (asset.Assets, error) {
-	var a assets
+	var a Assets
 
 	query := d.DB.WithContext(ctx).Raw(`
 		SELECT buy.symbol                                          symbol,
@@ -125,7 +135,7 @@ func (d GormDatabase) Assets(ctx context.Context) (asset.Assets, error) {
 }
 
 func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stock.Details, error) {
-	var entity detailsEntity
+	var entity Detail
 	if query := d.DB.WithContext(ctx).Find(&entity, "symbol = ?", symbol); query.Error != nil {
 		return stock.Details{}, query.Error
 	} else if query.RowsAffected == 0 {
@@ -133,7 +143,7 @@ func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stoc
 	}
 
 	return stock.Details{
-		Symbol:  entity.Symbol,
+		Symbol:  stock.Symbol(entity.Symbol),
 		Type:    entity.Type,
 		Sector:  entity.Sector,
 		Segment: entity.Segment,
@@ -141,7 +151,10 @@ func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stoc
 }
 
 func (d GormDatabase) InsertDetails(ctx context.Context, details stock.Details) error {
-	return d.DB.WithContext(ctx).Create(&detailsEntity{
-		Details: details,
+	return d.DB.WithContext(ctx).Create(&Detail{
+		Symbol:  string(details.Symbol),
+		Type:    details.Type,
+		Sector:  details.Sector,
+		Segment: details.Segment,
 	}).Error
 }
