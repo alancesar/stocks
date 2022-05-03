@@ -37,9 +37,10 @@ type (
 	}
 )
 
-func NewBuyOperationUseCase(repository operation.Repository) *BuyOperationUseCase {
+func NewBuyOperationUseCase(repository operation.Repository, fetcher Fetcher) *BuyOperationUseCase {
 	return &BuyOperationUseCase{
 		Repository: repository,
+		Fetcher:    fetcher,
 	}
 }
 
