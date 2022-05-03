@@ -63,7 +63,8 @@ func (s assets) ToDomain() asset.Assets {
 }
 
 func NewGormDatabase(db *gorm.DB) *GormDatabase {
-	_ = db.AutoMigrate(&operationEntity{})
+	_ = db.AutoMigrate(&operationEntity{}, &detailsEntity{})
+
 	return &GormDatabase{
 		DB: db,
 	}
