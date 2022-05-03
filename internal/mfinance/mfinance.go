@@ -13,7 +13,7 @@ const (
 )
 
 type (
-	Response struct {
+	Info struct {
 		Change       float64 `json:"change"`
 		ClosingPrice float64 `json:"closingPrice"`
 		Eps          float64 `json:"eps"`
@@ -62,7 +62,7 @@ func (p Provider) LastInfo(ctx context.Context, symbol stock.Symbol) (stock.Info
 		return stock.Info{}, err
 	}
 
-	var data Response
+	var data Info
 	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
 		return stock.Info{}, err
 	}
