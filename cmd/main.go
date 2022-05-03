@@ -11,6 +11,7 @@ import (
 	"stocks/internal/mfinance"
 	"stocks/internal/repository"
 	"stocks/separator"
+	"stocks/stock"
 	"stocks/usecase"
 )
 
@@ -29,9 +30,10 @@ func init() {
 
 	database := repository.NewGormDatabase(db)
 	provider := mfinance.NewProvider(http.DefaultClient)
+	fetcher := stock.NewFetcher(database, provider)
 
 	lastPriceUseCase = usecase.NewGetLastPrice(provider)
-	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database)
+	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database, fetcher)
 	listUseCase = usecase.NewListUseCase(database)
 	assetsUseCase = usecase.NewAssetsUseCase(provider, database)
 }
