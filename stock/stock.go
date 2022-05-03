@@ -23,6 +23,11 @@ type (
 		Change       float64
 	}
 
+	Repository interface {
+		GetDetails(ctx context.Context, symbol Symbol) (Details, error)
+		InsertDetails(ctx context.Context, details Details) error
+	}
+
 	Provider interface {
 		Details(ctx context.Context, symbol Symbol) (Details, error)
 		LastInfo(ctx context.Context, symbol Symbol) (Info, error)

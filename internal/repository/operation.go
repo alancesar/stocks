@@ -18,6 +18,11 @@ type (
 		operation.Operation
 	}
 
+	detailsEntity struct {
+		gorm.Model
+		stock.Details
+	}
+
 	entry struct {
 		Symbol       stock.Symbol
 		Quantity     int
@@ -32,6 +37,10 @@ type (
 
 func (e operationEntity) TableName() string {
 	return "operations"
+}
+
+func (e detailsEntity) TableName() string {
+	return "details"
 }
 
 func (s entries) ToDomain() operation.Summary {
@@ -111,4 +120,25 @@ func (d GormDatabase) Summary(ctx context.Context) (operation.Summary, error) {
 	}
 
 	return e.ToDomain(), nil
+}
+
+func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stock.Details, error) {
+	var entity detailsEntity
+	query := d.DB.WithContext(ctx).Find(&entity, "symbol = ?", symbol)
+	if query.Error != nil {
+		return stock.Details{}, query.Error
+	}
+
+	return stock.Details{
+		Symbol:  entity.Symbol,
+		Type:    entity.Type,
+		Sector:  entity.Sector,
+		Segment: entity.Segment,
+	}, nil
+}
+
+func (d GormDatabase) InsertDetails(ctx context.Context, details stock.Details) error {
+	return d.DB.WithContext(ctx).Create(&detailsEntity{
+		Details: details,
+	}).Error
 }
