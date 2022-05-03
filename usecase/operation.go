@@ -22,6 +22,7 @@ type (
 	}
 
 	BuyOperationUseCase struct {
+		Fetcher    Fetcher
 		Repository operation.Repository
 	}
 
@@ -55,6 +56,10 @@ func NewReportUseCase(provider stock.Provider, repository operation.ReportReposi
 }
 
 func (uc BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (operation.Operation, error) {
+	if err := uc.Fetcher.Fetch(ctx, request.Symbol); err != nil {
+		return operation.Operation{}, err
+	}
+
 	op := operation.Operation{
 		Type:      operation.Buy,
 		Symbol:    request.Symbol,
