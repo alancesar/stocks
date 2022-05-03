@@ -13,7 +13,7 @@ type (
 		DB *gorm.DB
 	}
 
-	entity struct {
+	operationEntity struct {
 		gorm.Model
 		operation.Operation
 	}
@@ -30,7 +30,7 @@ type (
 	entries []entry
 )
 
-func (e entity) TableName() string {
+func (e operationEntity) TableName() string {
 	return "operations"
 }
 
@@ -52,21 +52,21 @@ func (s entries) ToDomain() operation.Summary {
 }
 
 func NewGormDatabase(db *gorm.DB) *GormDatabase {
-	_ = db.AutoMigrate(&entity{})
+	_ = db.AutoMigrate(&operationEntity{})
 	return &GormDatabase{
 		DB: db,
 	}
 }
 
 func (d GormDatabase) Create(ctx context.Context, op operation.Operation) error {
-	query := d.DB.WithContext(ctx).Create(&entity{
+	query := d.DB.WithContext(ctx).Create(&operationEntity{
 		Operation: op,
 	})
 	return query.Error
 }
 
 func (d GormDatabase) List(ctx context.Context) (operation.List, error) {
-	var entities []entity
+	var entities []operationEntity
 	query := d.DB.WithContext(ctx).Raw("SELECT * FROM operations ORDER BY date, id").Scan(&entities)
 	if query.Error != nil {
 		return nil, query.Error
