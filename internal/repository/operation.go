@@ -27,10 +27,10 @@ type (
 
 	Detail struct {
 		gorm.Model
-		Symbol  string
-		Type    string
-		Sector  string
-		Segment string
+		Symbol    string
+		Sector    string
+		SubSector string
+		Segment   string
 	}
 
 	Asset struct {
@@ -143,18 +143,18 @@ func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stoc
 	}
 
 	return stock.Details{
-		Symbol:  stock.Symbol(entity.Symbol),
-		Type:    entity.Type,
-		Sector:  entity.Sector,
-		Segment: entity.Segment,
+		Symbol:    stock.Symbol(entity.Symbol),
+		Sector:    entity.Sector,
+		SubSector: entity.SubSector,
+		Segment:   entity.Segment,
 	}, nil
 }
 
 func (d GormDatabase) InsertDetails(ctx context.Context, details stock.Details) error {
 	return d.DB.WithContext(ctx).Create(&Detail{
-		Symbol:  string(details.Symbol),
-		Type:    details.Type,
-		Sector:  details.Sector,
-		Segment: details.Segment,
+		Symbol:    string(details.Symbol),
+		Sector:    details.Sector,
+		SubSector: details.SubSector,
+		Segment:   details.Segment,
 	}).Error
 }

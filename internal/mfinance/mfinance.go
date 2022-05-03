@@ -35,13 +35,6 @@ type (
 		Segment      string  `json:"segment"`
 	}
 
-	Details struct {
-		Symbol    string `json:"symbol"`
-		Type      string `json:"type"`
-		SubSector string `json:"subSector"`
-		Segment   string `json:"segment"`
-	}
-
 	Client interface {
 		Do(r *http.Request) (*http.Response, error)
 	}
@@ -85,7 +78,7 @@ func (p Provider) LastInfo(ctx context.Context, symbol stock.Symbol) (stock.Info
 }
 
 func (p Provider) Details(ctx context.Context, symbol stock.Symbol) (stock.Details, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/stocks/details/%s", baseUrl, symbol), nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/stocks/%s", baseUrl, symbol), nil)
 	if err != nil {
 		return stock.Details{}, err
 	}
@@ -96,7 +89,7 @@ func (p Provider) Details(ctx context.Context, symbol stock.Symbol) (stock.Detai
 		return stock.Details{}, err
 	}
 
-	details, err := decode[Details](res)
+	details, err := decode[Info](res)
 	if err != nil {
 		return stock.Details{}, err
 	} else if details.Symbol == "" {
@@ -104,10 +97,11 @@ func (p Provider) Details(ctx context.Context, symbol stock.Symbol) (stock.Detai
 	}
 
 	return stock.Details{
-		Symbol:  symbol,
-		Type:    details.Type,
-		Sector:  details.SubSector,
-		Segment: details.Segment,
+		Symbol:    symbol,
+		Name:      details.Name,
+		Sector:    details.Sector,
+		SubSector: details.SubSector,
+		Segment:   details.Segment,
 	}, nil
 }
 
