@@ -35,6 +35,13 @@ type (
 		Segment      string  `json:"segment"`
 	}
 
+	Details struct {
+		Symbol    string `json:"symbol"`
+		Type      string `json:"type"`
+		SubSector string `json:"subSector"`
+		Segment   string `json:"segment"`
+	}
+
 	Client interface {
 		Do(r *http.Request) (*http.Response, error)
 	}
@@ -75,4 +82,47 @@ func (p Provider) LastInfo(ctx context.Context, symbol stock.Symbol) (stock.Info
 		LastPrice:    data.LastPrice,
 		Change:       data.Change,
 	}, nil
+}
+
+func (p Provider) Details(ctx context.Context, symbol stock.Symbol) (stock.Details, error) {
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/stocks/details/%s", baseUrl, symbol), nil)
+	if err != nil {
+		return stock.Details{}, err
+	}
+
+	req = req.WithContext(ctx)
+	res, err := p.Client.Do(req)
+	if err != nil {
+		return stock.Details{}, err
+	}
+
+	details, err := decode[Details](res)
+	if err != nil {
+		return stock.Details{}, err
+	}
+
+	return stock.Details{
+		Symbol:  symbol,
+		Type:    details.Type,
+		Sector:  details.SubSector,
+		Segment: details.Segment,
+	}, nil
+}
+
+func decode[T any](response *http.Response) (T, error) {
+	defer func() {
+		_ = response.Body.Close()
+	}()
+
+	var output T
+
+	if response.StatusCode != http.StatusOK {
+		return output, fmt.Errorf("invalid status code: %d", response.StatusCode)
+	}
+
+	if err := json.NewDecoder(response.Body).Decode(&output); err != nil {
+		return output, err
+	}
+
+	return output, nil
 }

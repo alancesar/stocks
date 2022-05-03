@@ -7,6 +7,13 @@ import (
 type (
 	Symbol string
 
+	Details struct {
+		Symbol  Symbol
+		Type    string
+		Sector  string
+		Segment string
+	}
+
 	Info struct {
 		Symbol       Symbol
 		OpeningPrice float64
@@ -17,6 +24,7 @@ type (
 	}
 
 	Provider interface {
+		Details(ctx context.Context, symbol Symbol) (Details, error)
 		LastInfo(ctx context.Context, symbol Symbol) (Info, error)
 	}
 )
