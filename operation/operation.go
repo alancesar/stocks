@@ -2,17 +2,22 @@ package operation
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"stocks/currency"
 	"stocks/separator"
 	"stocks/stock"
+	"strconv"
 	"time"
 )
 
 const (
 	Buy Type = iota
 	Sell
+
+	bitSize    = 64
+	dateLayout = "2006-01-02"
 )
 
 type (
@@ -65,6 +70,40 @@ func (l List) Print(writer io.Writer, sep separator.Separator) error {
 	}
 
 	return nil
+}
+
+func ParseFromCSV(elements []string) (Operation, error) {
+	if len(elements) < 5 {
+		return Operation{}, errors.New("invalid length")
+	}
+
+	types := map[string]Type{
+		"BUY":  Buy,
+		"SELL": Sell,
+	}
+
+	quantity, err := strconv.Atoi(elements[2])
+	if err != nil {
+		return Operation{}, err
+	}
+
+	unitValue, err := strconv.ParseFloat(elements[3], bitSize)
+	if err != nil {
+		return Operation{}, err
+	}
+
+	date, err := time.Parse(dateLayout, elements[4])
+	if err != nil {
+		return Operation{}, err
+	}
+
+	return Operation{
+		Symbol:    stock.Symbol(elements[0]),
+		Type:      types[elements[1]],
+		Quantity:  quantity,
+		UnitValue: unitValue,
+		Date:      date,
+	}, nil
 }
 
 func printLine(operation Operation, sep separator.Separator) string {
