@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 	"stocks/internal/mfinance"
-	"stocks/internal/repositoty"
+	"stocks/internal/repository"
 	"stocks/separator"
 	"stocks/usecase"
 )
@@ -27,7 +27,7 @@ func init() {
 		log.Fatalln("failed to connect database")
 	}
 
-	database := repositoty.NewGormDatabase(db)
+	database := repository.NewGormDatabase(db)
 	provider := mfinance.NewProvider(http.DefaultClient)
 
 	lastPriceUseCase = usecase.NewGetLastPrice(provider)
