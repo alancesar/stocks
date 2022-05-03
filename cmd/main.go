@@ -19,6 +19,7 @@ var (
 	lastPriceUseCase          *usecase.GetLastPrice
 	createBuyOperationUseCase *usecase.BuyOperationUseCase
 	listUseCase               *usecase.ListUseCase
+	importUseCase             *usecase.ImportUseCase
 	assetsUseCase             *usecase.AssetsUseCase
 )
 
@@ -35,6 +36,7 @@ func init() {
 	lastPriceUseCase = usecase.NewGetLastPrice(provider)
 	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database, fetcher)
 	listUseCase = usecase.NewListUseCase(database)
+	importUseCase = usecase.NewImportUseCase(database)
 	assetsUseCase = usecase.NewAssetsUseCase(provider, database)
 }
 
@@ -102,6 +104,18 @@ func main() {
 		if err := operations.Print(file, separator.Comma); err != nil {
 			log.Fatalln(err)
 		}
+	case "import":
+		file, err := os.Open(os.Args[1])
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		operations, err := importUseCase.Execute(ctx, file)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		fmt.Printf("imported %d operations succesfully\n", len(operations))
 	case "assets":
 		assets, err := assetsUseCase.Execute(ctx)
 		if err != nil {
