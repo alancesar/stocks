@@ -111,5 +111,7 @@ func main() {
 		if err := assets.Print(os.Stdout, separator.Tab); err != nil {
 			log.Fatalln(err)
 		}
+
+		fmt.Printf("\nTotal\t\t\t\t\t\t%s\n", assets.GainLoss())
 	}
 }
