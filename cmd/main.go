@@ -41,6 +41,10 @@ func init() {
 func main() {
 	ctx := context.Background()
 
+	if len(os.Args) < 2 {
+		log.Fatalln("usage stocks [command] <options...>")
+	}
+
 	switch os.Args[1] {
 	case "buy":
 		request, err := CreateBuyRequest(os.Args[2:]...)
