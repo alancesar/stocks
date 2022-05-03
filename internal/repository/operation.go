@@ -28,6 +28,7 @@ type (
 	Detail struct {
 		gorm.Model
 		Symbol    string
+		Name      string
 		Sector    string
 		SubSector string
 		Segment   string
@@ -144,6 +145,7 @@ func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stoc
 
 	return stock.Details{
 		Symbol:    stock.Symbol(entity.Symbol),
+		Name:      entity.Name,
 		Sector:    entity.Sector,
 		SubSector: entity.SubSector,
 		Segment:   entity.Segment,
@@ -153,6 +155,7 @@ func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stoc
 func (d GormDatabase) InsertDetails(ctx context.Context, details stock.Details) error {
 	return d.DB.WithContext(ctx).Create(&Detail{
 		Symbol:    string(details.Symbol),
+		Name:      details.Name,
 		Sector:    details.Sector,
 		SubSector: details.SubSector,
 		Segment:   details.Segment,
