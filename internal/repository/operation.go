@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"gorm.io/gorm"
 	"stocks/asset"
 	"stocks/currency"
@@ -124,9 +125,10 @@ func (d GormDatabase) Assets(ctx context.Context) (asset.Assets, error) {
 
 func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stock.Details, error) {
 	var entity detailsEntity
-	query := d.DB.WithContext(ctx).Find(&entity, "symbol = ?", symbol)
-	if query.Error != nil {
+	if query := d.DB.WithContext(ctx).Find(&entity, "symbol = ?", symbol); query.Error != nil {
 		return stock.Details{}, query.Error
+	} else if query.RowsAffected == 0 {
+		return stock.Details{}, errors.New("not found")
 	}
 
 	return stock.Details{
