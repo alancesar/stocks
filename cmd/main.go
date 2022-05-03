@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"stocks/internal/okanebox"
+	"stocks/internal/mfinance"
 	"stocks/internal/repositoty"
 	"stocks/separator"
 	"stocks/usecase"
@@ -28,7 +28,7 @@ func init() {
 	}
 
 	database := repositoty.NewGormDatabase(db)
-	provider := okanebox.NewProvider(http.DefaultClient)
+	provider := mfinance.NewProvider(http.DefaultClient)
 
 	lastPriceUseCase = usecase.NewGetLastPrice(provider)
 	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database)
