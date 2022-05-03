@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"stocks/asset"
 	"stocks/currency"
 	"stocks/operation"
 	"stocks/stock"
@@ -30,9 +31,9 @@ type (
 		Repository operation.Repository
 	}
 
-	ReportUseCase struct {
+	AssetsUseCase struct {
 		Provider   stock.Provider
-		Repository operation.ReportRepository
+		Repository asset.Repository
 	}
 )
 
@@ -48,8 +49,8 @@ func NewListUseCase(repository operation.Repository) *ListUseCase {
 	}
 }
 
-func NewReportUseCase(provider stock.Provider, repository operation.ReportRepository) *ReportUseCase {
-	return &ReportUseCase{
+func NewAssetsUseCase(provider stock.Provider, repository asset.Repository) *AssetsUseCase {
+	return &AssetsUseCase{
 		Provider:   provider,
 		Repository: repository,
 	}
@@ -79,27 +80,27 @@ func (uc ListUseCase) Execute(ctx context.Context) (operation.List, error) {
 	return uc.Repository.List(ctx)
 }
 
-func (uc ReportUseCase) Execute(ctx context.Context) (operation.Report, error) {
-	summary, err := uc.Repository.Summary(ctx)
+func (uc AssetsUseCase) Execute(ctx context.Context) (asset.Assets, error) {
+	assets, err := uc.Repository.Assets(ctx)
 	if err != nil {
-		return operation.Report{}, err
+		return nil, err
 	}
 
 	done := make(chan bool)
 	fail := make(chan error)
 
 	wg := sync.WaitGroup{}
-	for i := range summary {
+	for i := range assets {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			info, err := uc.Provider.LastInfo(ctx, summary[i].Symbol)
+			info, err := uc.Provider.LastInfo(ctx, assets[i].Symbol)
 			if err != nil {
 				fail <- err
 				return
 			}
 
-			summary[i].LastPrice = currency.NewFromFloat(info.LastPrice)
+			assets[i].LastPrice = currency.NewFromFloat(info.LastPrice)
 		}(i)
 	}
 
@@ -110,12 +111,10 @@ func (uc ReportUseCase) Execute(ctx context.Context) (operation.Report, error) {
 
 	select {
 	case <-done:
-		return operation.Report{
-			Summary: summary,
-		}, nil
+		return assets, nil
 	case err := <-fail:
-		return operation.Report{}, err
+		return nil, err
 	case <-ctx.Done():
-		return operation.Report{}, ctx.Err()
+		return nil, ctx.Err()
 	}
 }

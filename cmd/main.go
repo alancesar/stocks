@@ -18,7 +18,7 @@ var (
 	lastPriceUseCase          *usecase.GetLastPrice
 	createBuyOperationUseCase *usecase.BuyOperationUseCase
 	listUseCase               *usecase.ListUseCase
-	reportUseCase             *usecase.ReportUseCase
+	assetsUseCase             *usecase.AssetsUseCase
 )
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 	lastPriceUseCase = usecase.NewGetLastPrice(provider)
 	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database)
 	listUseCase = usecase.NewListUseCase(database)
-	reportUseCase = usecase.NewReportUseCase(provider, database)
+	assetsUseCase = usecase.NewAssetsUseCase(provider, database)
 }
 
 func main() {
@@ -88,21 +88,21 @@ func main() {
 			_ = file.Close()
 		}()
 
-		report, err := listUseCase.Execute(ctx)
+		operations, err := listUseCase.Execute(ctx)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		if err := report.Print(file, separator.Comma); err != nil {
+		if err := operations.Print(file, separator.Comma); err != nil {
 			log.Fatalln(err)
 		}
-	case "report":
-		report, err := reportUseCase.Execute(ctx)
+	case "assets":
+		assets, err := assetsUseCase.Execute(ctx)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		if err := report.Print(os.Stdout, separator.Tab); err != nil {
+		if err := assets.Print(os.Stdout, separator.Tab); err != nil {
 			log.Fatalln(err)
 		}
 	}

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"gorm.io/gorm"
+	"stocks/asset"
 	"stocks/currency"
 	"stocks/operation"
 	"stocks/stock"
@@ -23,7 +24,7 @@ type (
 		stock.Details
 	}
 
-	entry struct {
+	assetEntity struct {
 		Symbol       stock.Symbol
 		Quantity     int
 		AveragePrice float64
@@ -32,7 +33,7 @@ type (
 		Settled      float64
 	}
 
-	entries []entry
+	assets []assetEntity
 )
 
 func (e operationEntity) TableName() string {
@@ -43,11 +44,11 @@ func (e detailsEntity) TableName() string {
 	return "details"
 }
 
-func (s entries) ToDomain() operation.Summary {
-	var summary operation.Summary
+func (s assets) ToDomain() asset.Assets {
+	var a asset.Assets
 
 	for _, e := range s {
-		summary = append(summary, operation.Entry{
+		a = append(a, asset.Asset{
 			Symbol:       e.Symbol,
 			Quantity:     e.Quantity,
 			AveragePrice: currency.NewFromFloat(e.AveragePrice),
@@ -57,7 +58,7 @@ func (s entries) ToDomain() operation.Summary {
 		})
 	}
 
-	return summary
+	return a
 }
 
 func NewGormDatabase(db *gorm.DB) *GormDatabase {
@@ -88,8 +89,8 @@ func (d GormDatabase) List(ctx context.Context) (operation.List, error) {
 	return operations, nil
 }
 
-func (d GormDatabase) Summary(ctx context.Context) (operation.Summary, error) {
-	var e entries
+func (d GormDatabase) Assets(ctx context.Context) (asset.Assets, error) {
+	var a assets
 
 	query := d.DB.WithContext(ctx).Raw(`
 		SELECT buy.symbol                                          symbol,
@@ -112,13 +113,13 @@ func (d GormDatabase) Summary(ctx context.Context) (operation.Summary, error) {
 							WHERE type = ?
 							GROUP BY symbol) sell
 						   ON sell.symbol == buy.symbol;
-	`, operation.Buy, operation.Sell).Scan(&e)
+	`, operation.Buy, operation.Sell).Scan(&a)
 
 	if query.Error != nil {
 		return nil, query.Error
 	}
 
-	return e.ToDomain(), nil
+	return a.ToDomain(), nil
 }
 
 func (d GormDatabase) GetDetails(ctx context.Context, symbol stock.Symbol) (stock.Details, error) {

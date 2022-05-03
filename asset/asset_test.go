@@ -1,4 +1,4 @@
-package operation
+package asset
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestEntry_Balance(t *testing.T) {
+func TestAsset_Balance(t *testing.T) {
 	type fields struct {
 		Investment currency.Currency
 		Settled    currency.Currency
@@ -46,7 +46,7 @@ func TestEntry_Balance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := Entry{
+			s := Asset{
 				Investment: tt.fields.Investment,
 				Settled:    tt.fields.Settled,
 			}
@@ -57,7 +57,7 @@ func TestEntry_Balance(t *testing.T) {
 	}
 }
 
-func TestEntry_GainLoss(t *testing.T) {
+func TestAsset_GainLoss(t *testing.T) {
 	type fields struct {
 		Symbol       stock.Symbol
 		Quantity     int
@@ -138,7 +138,7 @@ func TestEntry_GainLoss(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := Entry{
+			s := Asset{
 				Quantity:   tt.fields.Quantity,
 				LastPrice:  tt.fields.LastPrice,
 				Investment: tt.fields.Investment,
@@ -151,9 +151,9 @@ func TestEntry_GainLoss(t *testing.T) {
 	}
 }
 
-func TestReport_Balance(t *testing.T) {
+func TestAssets_Balance(t *testing.T) {
 	type fields struct {
-		Summary Summary
+		assets Assets
 	}
 	tests := []struct {
 		name   string
@@ -161,9 +161,9 @@ func TestReport_Balance(t *testing.T) {
 		want   currency.Currency
 	}{
 		{
-			name: "Should calculate report balance properly",
+			name: "Should calculate assets report balance properly",
 			fields: fields{
-				Summary: Summary{
+				assets: Assets{
 					{
 						Investment: currency.NewFromFloat(200),
 					},
@@ -182,19 +182,17 @@ func TestReport_Balance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Report{
-				Summary: tt.fields.Summary,
-			}
-			if got := r.Balance(); !reflect.DeepEqual(got, tt.want) {
+			assets := tt.fields.assets
+			if got := assets.Balance(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Balance() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestReport_GainLoss(t *testing.T) {
+func TestAssets_GainLoss(t *testing.T) {
 	type fields struct {
-		Summary Summary
+		assets Assets
 	}
 	tests := []struct {
 		name   string
@@ -202,9 +200,9 @@ func TestReport_GainLoss(t *testing.T) {
 		want   currency.Currency
 	}{
 		{
-			name: "Should calculate report gain / loss properly",
+			name: "Should calculate assets gain / loss properly",
 			fields: fields{
-				Summary: Summary{
+				assets: Assets{
 					{
 						Quantity:   10,
 						LastPrice:  currency.NewFromFloat(12),
@@ -227,19 +225,17 @@ func TestReport_GainLoss(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Report{
-				Summary: tt.fields.Summary,
-			}
-			if got := r.GainLoss(); !reflect.DeepEqual(got, tt.want) {
+			assets := tt.fields.assets
+			if got := assets.GainLoss(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GainLoss() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestReport_Print(t *testing.T) {
+func TestAssets_Print(t *testing.T) {
 	type fields struct {
-		Summary Summary
+		assets Assets
 	}
 	type args struct {
 		sep separator.Separator
@@ -252,9 +248,9 @@ func TestReport_Print(t *testing.T) {
 		wantErr    bool
 	}{
 		{
-			name: "Should print report properly with comma",
+			name: "Should print assets report properly with comma",
 			fields: fields{
-				Summary: Summary{
+				assets: Assets{
 					{
 						Symbol:       "STOCK1",
 						Quantity:     8,
@@ -280,9 +276,9 @@ func TestReport_Print(t *testing.T) {
 			wantErr:    false,
 		},
 		{
-			name: "Should print report properly with tab",
+			name: "Should print assets report properly with tab",
 			fields: fields{
-				Summary: Summary{
+				assets: Assets{
 					{
 						Symbol:       "STOCK1",
 						Quantity:     8,
@@ -310,11 +306,9 @@ func TestReport_Print(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Report{
-				Summary: tt.fields.Summary,
-			}
+			assets := tt.fields.assets
 			writer := &bytes.Buffer{}
-			err := r.Print(writer, tt.args.sep)
+			err := assets.Print(writer, tt.args.sep)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Print() error = %v, wantErr %v", err, tt.wantErr)
 				return
