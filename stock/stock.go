@@ -13,10 +13,11 @@ type (
 	}
 
 	Details struct {
-		Symbol  Symbol
-		Type    string
-		Sector  string
-		Segment string
+		Symbol    Symbol
+		Name      string
+		Sector    string
+		SubSector string
+		Segment   string
 	}
 
 	Info struct {
