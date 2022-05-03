@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"io"
 	"stocks/asset"
+	"stocks/csv"
 	"stocks/currency"
 	"stocks/operation"
 	"stocks/stock"
@@ -31,6 +33,10 @@ type (
 		Repository operation.Repository
 	}
 
+	ImportUseCase struct {
+		Repository operation.Repository
+	}
+
 	AssetsUseCase struct {
 		Provider   stock.Provider
 		Repository asset.Repository
@@ -46,6 +52,12 @@ func NewBuyOperationUseCase(repository operation.Repository, fetcher Fetcher) *B
 
 func NewListUseCase(repository operation.Repository) *ListUseCase {
 	return &ListUseCase{
+		Repository: repository,
+	}
+}
+
+func NewImportUseCase(repository operation.Repository) *ImportUseCase {
+	return &ImportUseCase{
 		Repository: repository,
 	}
 }
@@ -79,6 +91,21 @@ func (uc BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (
 
 func (uc ListUseCase) Execute(ctx context.Context) (operation.List, error) {
 	return uc.Repository.List(ctx)
+}
+
+func (uc ImportUseCase) Execute(ctx context.Context, reader io.Reader) ([]operation.Operation, error) {
+	operations, err := csv.Import(reader, operation.ParseFromCSV)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, o := range operations {
+		if err := uc.Repository.Create(ctx, o); err != nil {
+			return nil, err
+		}
+	}
+
+	return operations, nil
 }
 
 func (uc AssetsUseCase) Execute(ctx context.Context) (asset.Assets, error) {
