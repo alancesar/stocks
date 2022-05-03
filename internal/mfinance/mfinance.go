@@ -69,18 +69,18 @@ func (p Provider) LastInfo(ctx context.Context, symbol stock.Symbol) (stock.Info
 		return stock.Info{}, err
 	}
 
-	var data Info
-	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
+	info, err := decode[Info](res)
+	if err != nil {
 		return stock.Info{}, err
 	}
 
 	return stock.Info{
 		Symbol:       symbol,
-		OpeningPrice: data.PriceOpen,
-		MaxPrice:     data.High,
-		MinPrice:     data.Low,
-		LastPrice:    data.LastPrice,
-		Change:       data.Change,
+		OpeningPrice: info.PriceOpen,
+		MaxPrice:     info.High,
+		MinPrice:     info.Low,
+		LastPrice:    info.LastPrice,
+		Change:       info.Change,
 	}, nil
 }
 
