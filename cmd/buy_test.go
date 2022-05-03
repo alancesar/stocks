@@ -24,7 +24,7 @@ func TestCreateBuyRequest(t *testing.T) {
 				args: []string{"STOCK", "10", "1.23"},
 			},
 			want: usecase.BuyRequest{
-				Stock:     "STOCK",
+				Symbol:    "STOCK",
 				Quantity:  10,
 				UnitValue: 1.23,
 				Date:      date.Trunc(time.Now()),
@@ -37,7 +37,7 @@ func TestCreateBuyRequest(t *testing.T) {
 				args: []string{"STOCK", "10", "1.23", "2022-04-28"},
 			},
 			want: usecase.BuyRequest{
-				Stock:     "STOCK",
+				Symbol:    "STOCK",
 				Quantity:  10,
 				UnitValue: 1.23,
 				Date:      time.Date(2022, 4, 28, 0, 0, 0, 0, time.UTC),

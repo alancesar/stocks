@@ -15,7 +15,7 @@ type (
 	}
 
 	Entry struct {
-		Stock        stock.Stock
+		Symbol       stock.Symbol
 		Quantity     int
 		AveragePrice currency.Currency
 		LastPrice    currency.Currency
@@ -61,14 +61,14 @@ func (r Report) GainLoss() currency.Currency {
 }
 
 func (r Report) Print(writer io.Writer, sep separator.Separator) error {
-	title := fmt.Sprintf("Stock%sQtd.%sAvg. Price%sLast Price%sGain/Loss\n", sep, sep, sep, sep)
+	title := fmt.Sprintf("Symbol%sQtd.%sAvg. Price%sLast Price%sGain/Loss\n", sep, sep, sep, sep)
 	if _, err := io.WriteString(writer, title); err != nil {
 		return err
 	}
 
 	for _, e := range r.Summary {
 		line := fmt.Sprintf("%s%s%d%s%s%s%s%s%s\n",
-			e.Stock, sep, e.Quantity, sep, e.AveragePrice, sep, e.LastPrice, sep, e.GainLoss())
+			e.Symbol, sep, e.Quantity, sep, e.AveragePrice, sep, e.LastPrice, sep, e.GainLoss())
 
 		if _, err := io.WriteString(writer, line); err != nil {
 			return err

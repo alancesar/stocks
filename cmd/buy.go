@@ -34,7 +34,7 @@ func CreateBuyRequest(args ...string) (usecase.BuyRequest, error) {
 	}
 
 	return usecase.BuyRequest{
-		Stock:     stock.Stock(args[0]),
+		Symbol:    stock.Symbol(args[0]),
 		Quantity:  quantity,
 		UnitValue: value,
 		Date:      d,

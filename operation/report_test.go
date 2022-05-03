@@ -59,7 +59,7 @@ func TestEntry_Balance(t *testing.T) {
 
 func TestEntry_GainLoss(t *testing.T) {
 	type fields struct {
-		Stock        stock.Stock
+		Symbol       stock.Symbol
 		Quantity     int
 		AveragePrice currency.Currency
 		LastPrice    currency.Currency
@@ -256,7 +256,7 @@ func TestReport_Print(t *testing.T) {
 			fields: fields{
 				Summary: Summary{
 					{
-						Stock:        "STOCK1",
+						Symbol:       "STOCK1",
 						Quantity:     8,
 						AveragePrice: currency.NewFromFloat(10),
 						LastPrice:    currency.NewFromFloat(12),
@@ -264,7 +264,7 @@ func TestReport_Print(t *testing.T) {
 						Settled:      currency.NewFromFloat(0),
 					},
 					{
-						Stock:        "STOCK2",
+						Symbol:       "STOCK2",
 						Quantity:     6,
 						AveragePrice: currency.NewFromFloat(9.8),
 						LastPrice:    currency.NewFromFloat(21),
@@ -276,7 +276,7 @@ func TestReport_Print(t *testing.T) {
 			args: args{
 				sep: separator.Comma,
 			},
-			wantWriter: "Stock,Qtd.,Avg. Price,Last Price,Gain/Loss\nSTOCK1,8,R$ 10,00,R$ 12,00,-(R$ 4,00)\nSTOCK2,6,R$ 9,80,R$ 21,00,R$ 66,00\n",
+			wantWriter: "Symbol,Qtd.,Avg. Price,Last Price,Gain/Loss\nSTOCK1,8,R$ 10,00,R$ 12,00,-(R$ 4,00)\nSTOCK2,6,R$ 9,80,R$ 21,00,R$ 66,00\n",
 			wantErr:    false,
 		},
 		{
@@ -284,7 +284,7 @@ func TestReport_Print(t *testing.T) {
 			fields: fields{
 				Summary: Summary{
 					{
-						Stock:        "STOCK1",
+						Symbol:       "STOCK1",
 						Quantity:     8,
 						AveragePrice: currency.NewFromFloat(10),
 						LastPrice:    currency.NewFromFloat(12),
@@ -292,7 +292,7 @@ func TestReport_Print(t *testing.T) {
 						Settled:      currency.NewFromFloat(0),
 					},
 					{
-						Stock:        "STOCK2",
+						Symbol:       "STOCK2",
 						Quantity:     6,
 						AveragePrice: currency.NewFromFloat(9.8),
 						LastPrice:    currency.NewFromFloat(21),
@@ -304,7 +304,7 @@ func TestReport_Print(t *testing.T) {
 			args: args{
 				sep: separator.Tab,
 			},
-			wantWriter: "Stock\tQtd.\tAvg. Price\tLast Price\tGain/Loss\nSTOCK1\t8\tR$ 10,00\tR$ 12,00\t-(R$ 4,00)\nSTOCK2\t6\tR$ 9,80\tR$ 21,00\tR$ 66,00\n",
+			wantWriter: "Symbol\tQtd.\tAvg. Price\tLast Price\tGain/Loss\nSTOCK1\t8\tR$ 10,00\tR$ 12,00\t-(R$ 4,00)\nSTOCK2\t6\tR$ 9,80\tR$ 21,00\tR$ 66,00\n",
 			wantErr:    false,
 		},
 	}

@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Stock string
+	Symbol string
 
 	Info struct {
 		OpeningPrice float64
@@ -16,6 +16,6 @@ type (
 	}
 
 	Provider interface {
-		LastInfo(ctx context.Context, stock Stock) (Info, error)
+		LastInfo(ctx context.Context, symbol Symbol) (Info, error)
 	}
 )

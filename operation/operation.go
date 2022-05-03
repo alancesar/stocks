@@ -24,7 +24,7 @@ type (
 	}
 
 	Operation struct {
-		Stock     stock.Stock
+		Symbol    stock.Symbol
 		Type      Type
 		Quantity  int
 		UnitValue float64
@@ -46,12 +46,12 @@ func (t Type) String() string {
 }
 
 func (o Operation) String() string {
-	return fmt.Sprintf("Stock=%-6s Type=%s Quantity=%d UnitValue=%s Date=%s",
-		o.Stock, o.Type, o.Quantity, currency.NewFromFloat(o.UnitValue), o.Date.Format("2006-01-02"))
+	return fmt.Sprintf("Symbol=%-6s Type=%s Quantity=%d UnitValue=%s Date=%s",
+		o.Symbol, o.Type, o.Quantity, currency.NewFromFloat(o.UnitValue), o.Date.Format("2006-01-02"))
 }
 
 func (l List) Print(writer io.Writer, sep separator.Separator) error {
-	title := fmt.Sprintf("Stock%sType%sQtd%sUnit. Value%sDate\n", sep, sep, sep, sep)
+	title := fmt.Sprintf("Symbol%sType%sQtd%sUnit. Value%sDate\n", sep, sep, sep, sep)
 	if _, err := io.WriteString(writer, title); err != nil {
 		return err
 	}
@@ -78,12 +78,12 @@ func printLine(operation Operation, sep separator.Separator) string {
 
 func printRaw(operation Operation, sep separator.Separator) string {
 	return fmt.Sprintf("%s%s%s%s%d%s%.2f%s%s\n",
-		operation.Stock, sep, operation.Type, sep, operation.Quantity, sep, operation.UnitValue, sep,
+		operation.Symbol, sep, operation.Type, sep, operation.Quantity, sep, operation.UnitValue, sep,
 		operation.Date.Format("2006-01-02"))
 }
 
 func printBeauty(operation Operation, sep separator.Separator) string {
 	return fmt.Sprintf("%s%s%s%s%d%s%s%s%s\n",
-		operation.Stock, sep, operation.Type, sep, operation.Quantity, sep, currency.NewFromFloat(operation.UnitValue),
+		operation.Symbol, sep, operation.Type, sep, operation.Quantity, sep, currency.NewFromFloat(operation.UnitValue),
 		sep, operation.Date.Format("2006-01-02"))
 }

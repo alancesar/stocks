@@ -11,7 +11,7 @@ import (
 
 type (
 	BuyRequest struct {
-		Stock     stock.Stock
+		Symbol    stock.Symbol
 		Quantity  int
 		UnitValue float64
 		Date      time.Time
@@ -53,7 +53,7 @@ func NewReportUseCase(provider stock.Provider, repository operation.ReportReposi
 func (uc BuyOperationUseCase) Execute(ctx context.Context, request BuyRequest) (operation.Operation, error) {
 	op := operation.Operation{
 		Type:      operation.Buy,
-		Stock:     request.Stock,
+		Symbol:    request.Symbol,
 		Date:      request.Date,
 		Quantity:  request.Quantity,
 		UnitValue: request.UnitValue,
@@ -84,7 +84,7 @@ func (uc ReportUseCase) Execute(ctx context.Context) (operation.Report, error) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			info, err := uc.Provider.LastInfo(ctx, summary[i].Stock)
+			info, err := uc.Provider.LastInfo(ctx, summary[i].Symbol)
 			if err != nil {
 				fail <- err
 				return

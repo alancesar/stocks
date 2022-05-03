@@ -13,7 +13,7 @@ func TestCreatePriceRequest(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    stock.Stock
+		want    stock.Symbol
 		wantErr bool
 	}{
 		{
@@ -21,7 +21,7 @@ func TestCreatePriceRequest(t *testing.T) {
 			args: args{
 				args: []string{"STOCK"},
 			},
-			want:    stock.Stock("STOCK"),
+			want:    stock.Symbol("STOCK"),
 			wantErr: false,
 		},
 		{

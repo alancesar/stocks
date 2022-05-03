@@ -50,7 +50,7 @@ func NewProvider(client Client) *Provider {
 	}
 }
 
-func (p Provider) LastInfo(ctx context.Context, symbol stock.Stock) (stock.Info, error) {
+func (p Provider) LastInfo(ctx context.Context, symbol stock.Symbol) (stock.Info, error) {
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", baseUrl, symbol), nil)
 	if err != nil {
 		return stock.Info{}, err
