@@ -8,6 +8,7 @@ type (
 	Symbol string
 
 	Info struct {
+		Symbol       Symbol
 		OpeningPrice float64
 		MaxPrice     float64
 		MinPrice     float64

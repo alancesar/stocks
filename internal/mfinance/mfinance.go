@@ -68,6 +68,7 @@ func (p Provider) LastInfo(ctx context.Context, symbol stock.Symbol) (stock.Info
 	}
 
 	return stock.Info{
+		Symbol:       symbol,
 		OpeningPrice: data.PriceOpen,
 		MaxPrice:     data.High,
 		MinPrice:     data.Low,
