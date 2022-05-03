@@ -10,6 +10,10 @@ import (
 )
 
 type (
+	Fetcher interface {
+		Fetch(ctx context.Context, symbol stock.Symbol) error
+	}
+
 	BuyRequest struct {
 		Symbol    stock.Symbol
 		Quantity  int

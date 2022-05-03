@@ -7,6 +7,11 @@ import (
 type (
 	Symbol string
 
+	Fetcher struct {
+		Repository Repository
+		Provider   Provider
+	}
+
 	Details struct {
 		Symbol  Symbol
 		Type    string
@@ -33,3 +38,15 @@ type (
 		LastInfo(ctx context.Context, symbol Symbol) (Info, error)
 	}
 )
+
+func (f Fetcher) Fetch(ctx context.Context, symbol Symbol) error {
+	if _, err := f.Repository.GetDetails(ctx, symbol); err == nil {
+		return nil
+	}
+
+	if details, err := f.Provider.Details(ctx, symbol); err != nil {
+		return err
+	} else {
+		return f.Repository.InsertDetails(ctx, details)
+	}
+}
