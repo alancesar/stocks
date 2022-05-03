@@ -39,6 +39,13 @@ type (
 	}
 )
 
+func NewFetcher(repository Repository, provider Provider) *Fetcher {
+	return &Fetcher{
+		Repository: repository,
+		Provider:   provider,
+	}
+}
+
 func (f Fetcher) Fetch(ctx context.Context, symbol Symbol) error {
 	if _, err := f.Repository.GetDetails(ctx, symbol); err == nil {
 		return nil
