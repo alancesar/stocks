@@ -99,6 +99,8 @@ func (p Provider) Details(ctx context.Context, symbol stock.Symbol) (stock.Detai
 	details, err := decode[Details](res)
 	if err != nil {
 		return stock.Details{}, err
+	} else if details.Symbol == "" {
+		return stock.Details{}, fmt.Errorf("%s not found", symbol)
 	}
 
 	return stock.Details{
