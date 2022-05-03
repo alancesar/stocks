@@ -34,6 +34,7 @@ type (
 	}
 
 	ImportUseCase struct {
+		Fetcher    Fetcher
 		Repository operation.Repository
 	}
 
@@ -56,8 +57,9 @@ func NewListUseCase(repository operation.Repository) *ListUseCase {
 	}
 }
 
-func NewImportUseCase(repository operation.Repository) *ImportUseCase {
+func NewImportUseCase(repository operation.Repository, fetcher Fetcher) *ImportUseCase {
 	return &ImportUseCase{
+		Fetcher:    fetcher,
 		Repository: repository,
 	}
 }
@@ -94,12 +96,16 @@ func (uc ListUseCase) Execute(ctx context.Context) (operation.List, error) {
 }
 
 func (uc ImportUseCase) Execute(ctx context.Context, reader io.Reader) ([]operation.Operation, error) {
-	operations, err := csv.Import(reader, operation.ParseFromCSV)
+	operations, err := csv.Import(reader, true, operation.ParseFromCSV)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, o := range operations {
+		if err := uc.Fetcher.Fetch(ctx, o.Symbol); err != nil {
+			return nil, err
+		}
+
 		if err := uc.Repository.Create(ctx, o); err != nil {
 			return nil, err
 		}

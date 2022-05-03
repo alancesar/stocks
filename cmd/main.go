@@ -36,7 +36,7 @@ func init() {
 	lastPriceUseCase = usecase.NewGetLastPrice(provider)
 	createBuyOperationUseCase = usecase.NewBuyOperationUseCase(database, fetcher)
 	listUseCase = usecase.NewListUseCase(database)
-	importUseCase = usecase.NewImportUseCase(database)
+	importUseCase = usecase.NewImportUseCase(database, fetcher)
 	assetsUseCase = usecase.NewAssetsUseCase(provider, database)
 }
 
@@ -105,7 +105,11 @@ func main() {
 			log.Fatalln(err)
 		}
 	case "import":
-		file, err := os.Open(os.Args[1])
+		if len(os.Args) < 3 {
+			log.Fatalln("usage: stocks import <source>")
+		}
+
+		file, err := os.Open(os.Args[2])
 		if err != nil {
 			log.Fatalln(err)
 		}
