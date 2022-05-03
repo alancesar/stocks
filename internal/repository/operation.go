@@ -68,10 +68,9 @@ func NewGormDatabase(db *gorm.DB) *GormDatabase {
 }
 
 func (d GormDatabase) Create(ctx context.Context, op operation.Operation) error {
-	query := d.DB.WithContext(ctx).Create(&operationEntity{
+	return d.DB.WithContext(ctx).Create(&operationEntity{
 		Operation: op,
-	})
-	return query.Error
+	}).Error
 }
 
 func (d GormDatabase) List(ctx context.Context) (operation.List, error) {
